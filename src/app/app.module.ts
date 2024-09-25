@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TabelaDeMusicasComponent } from './tabela-de-musicas/tabela-de-musicas.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [

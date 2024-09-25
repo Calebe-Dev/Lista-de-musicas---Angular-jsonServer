@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Musica } from './musicas';
+import MusicasService from '../musicas.service';
 
 @Component({
   selector: 'app-tabela-de-musicas',
@@ -7,24 +8,12 @@ import { Musica } from './musicas';
   styleUrl: './tabela-de-musicas.component.css'
 })
 export class TabelaDeMusicasComponent {
-  musicas: Musica[] = [
-    {
-      "id": 1,
-      "name": "Bohemian Rhapsody",
-      "note": 9.99,
-      "category": "Rock",
-      "artist": "Queen",
-      "year": 1975
-    },
-    {
-      "id": 2,
-      "name": "Hotel California",
-      "note": 9.99,
-      "category": "Rock",
-      "artist": "Eagles",
-      "year": 1976
-    },
-    // Outros objetos de música...
-  ];
-}
+  musicas: Musica[] = [];
+ constructor(private musicasService: MusicasService) {};
 
+  ngOnInit(): void {
+    this.musicasService.getMusicas().subscribe(data => {
+      this.musicas = data;
+    });
+}
+}

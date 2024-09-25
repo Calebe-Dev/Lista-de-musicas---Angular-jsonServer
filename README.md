@@ -3,18 +3,18 @@
 Este projeto faz parte do curso de **Análise e Desenvolvimento de Sistemas (ADS)** no 3º semestre, para a disciplina eletiva de **Programação Web**. A aplicação consiste em uma tabela que lista músicas com informações detalhadas, utilizando componentes do **Bootstrap** para estilização. O projeto será desenvolvido em etapas, e novas funcionalidades serão adicionadas ao longo do tempo.
 
 ## Índice
-
-- [Sobre o Projeto](#sobre-o-projeto)
 - [Funcionalidades](#funcionalidades)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Etapas de Desenvolvimento](#etapas-de-desenvolvimento)
-  - [1.0 Criação do Projeto](#10-criação-do-projeto)
-    - [1.1 Criação do Projeto Angular](#11-criação-do-projeto-angular)
-    - [1.2 Inicialização do Repositório Git](#12-inicialização-do-repositório-git)
-    - [1.3 Instalação do Bootstrap](#13-instalação-do-bootstrap)
-    - [1.4 Criação do Componente de Tabela](#14-criação-do-componente-de-tabela)
-    - [1.5 Implementação de Dados Locais](#15-implementação-de-dados-locais)
-    - [1.6 Migração para API Externa com JSON Server](#16-migração-para-api-externa-com-json-server)
+- [Versão 1.0](#versão-do-projeto)
+    - [Etapas de Desenvolvimento](#1.0-etapas-de-desenvolvimento)
+        - [1.1 Criação do Projeto Angular](#11-criação-do-projeto-angular)
+        - [1.2 Inicialização do Repositório Git](#12-inicialização-do-repositório-git)
+        - [1.3 Instalação do Bootstrap](#13-instalação-do-bootstrap)
+        - [1.4 Criação do Componente da Tabela de Músicas](#14-criação-do-componente-da-tabela-de-músicas)
+        - [1.5 Implementação Inicial com Dados Locais](#15-implementação-inicial-com-dados-locais)
+        - [1.6 Migração para API Externa com JSON Server](#16-migração-para-api-externa-com-json-server)
+        - [1.7 Criação do Serviço Angular para Consumo da API](#17-criação-do-serviço-angular-para-consumo-da-api)
+        - [1.8 Conectando o Serviço com o Componente](#18-conectando-o-serviço-com-o-componente)
 - [Instalação](#instalação)
 - [Uso](#uso)
 - [Contribuição](#contribuição)
@@ -219,6 +219,105 @@ Os dados foram posteriormente migrados para uma API simulada com **JSON Server**
    ```bash
    json-server --watch db.json
    ```
+
+
+
+### 1.7 Criação do Serviço Angular para Consumo da API
+
+Nesta etapa, criaremos um serviço Angular para gerenciar a lógica de consumo dos dados da API de músicas. O serviço será responsável por fazer requisições HTTP e fornecer os dados ao componente da tabela.
+
+#### 1.7.1 Gerando o Serviço
+
+Execute o comando abaixo para gerar um novo serviço Angular:
+
+```bash
+ng g s musicas
+```
+
+Este comando criará o arquivo `musicas.service.ts` no caminho `src/app/musicas.service.ts`.
+
+#### 1.7.2 Implementando a Lógica de Consumo de API
+
+No arquivo `src/app/musicas.service.ts`, importe o módulo `HttpClient` e defina o método para buscar os dados da API:
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Musica } from './musicas';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MusicasService {
+  private apiUrl = 'http://localhost:3000/musicas';
+
+  constructor(private http: HttpClient) {}
+
+  getMusicas(): Observable<Musica[]> {
+    return this.http.get<Musica[]>(this.apiUrl);
+  }
+}
+```
+
+Esse serviço utiliza o `HttpClient` para fazer uma requisição GET à API (nesse caso, o JSON Server) e retornar um `Observable` contendo os dados das músicas.
+
+#### 1.7.3 Configurando o Módulo para Uso do HttpClient
+
+Para que o serviço funcione corretamente, o módulo `HttpClientModule` deve ser importado no arquivo `src/app/app.module.ts`. Isso permitirá que o Angular realize requisições HTTP. Modifique o arquivo `app.module.ts` para incluir essa importação:
+
+```typescript
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [
+    // Componentes...
+  ],
+  imports: [
+    HttpClientModule,
+    // Outros módulos...
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+---
+
+### 1.8 Conectando o Serviço com o Componente
+
+Agora, vamos modificar o componente `TabelaDeMusicasComponent` para utilizar o serviço que criamos e carregar os dados da API.
+
+#### 1.8.1 Modificando o Componente
+
+No arquivo `src/app/tabela-de-musicas/tabela-de-musicas.component.ts`, importe o `MusicasService` e utilize-o para buscar os dados das músicas:
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { MusicasService } from '../musicas.service';
+import { Musica } from '../musicas';
+
+@Component({
+  selector: 'app-tabela-de-musicas',
+  templateUrl: './tabela-de-musicas.component.html',
+  styleUrls: ['./tabela-de-musicas.component.css']
+})
+export class TabelaDeMusicasComponent implements OnInit {
+  musicas: Musica[] = [];
+
+  constructor(private musicasService: MusicasService) {}
+
+  ngOnInit(): void {
+    this.musicasService.getMusicas().subscribe(data => {
+      this.musicas = data;
+    });
+  }
+}
+```
+
+Aqui, o método `ngOnInit` é utilizado para chamar o serviço `MusicasService` logo que o componente é inicializado. Ele se inscreve no `Observable` retornado pelo método `getMusicas` e atualiza a lista de músicas (`musicas`) com os dados recebidos da API.
+
 
 ## Instalação
 
